@@ -24,7 +24,7 @@ function abbreviation(a, b) {
                 // P    1
                 // i    1
                 // Example 2
-                //	    A
+                //      A
                 // d	0
                 // a	1
                 // B	0
