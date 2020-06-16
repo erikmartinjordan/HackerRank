@@ -1,14 +1,7 @@
-// Complete the minimumMoves function below.
 function minimumMoves(grid, startX, startY, goalX, goalY){
 
-    // Array defining directions
-    let directions = [];
-
-    // Queue of different paths until reaching the goal
-    let paths = [];
-
     // Queue of next points to visit
-    let queue = {left: [], right: [], up: [], down: []};
+    let queue = [];
 
     // Transforming grid into matrix
     let matrix = grid.map(string => [...string]);
@@ -16,62 +9,68 @@ function minimumMoves(grid, startX, startY, goalX, goalY){
     // Defining visited nodes; false by default
     let visited = grid.map(string => [...string].map(visited => false));
 
+    // Defining distances; infinite by default
+    let distance = grid.map(string => [...string].map(distance => Infinity));
+
     // Defining current position
     let currentX = startX;
     let currentY = startY;
-    let rows     = grid.length;
-    let cols     = grid[0].length;
+
+    // Defining rows and cols
+    let rows = grid.length;
+    let cols = grid[0].length;
+
+    // Adding first position to queue
+    queue[0] = [currentX, currentY];
+    distance[currentX][currentY] = 0;
 
     // Defining moving function
-    while( (currentX === startX && currentY === startY) || queue.left.length > 0 || queue.right.length > 0 || queue.up.length > 0 || queue.down.length > 0){
+    while(queue.length > 0){
 
-        // Getting current point
-        if(queue.left.length > 0)       [currentX, currentY] = queue.left.shift();
-        else if(queue.right.length > 0) [currentX, currentY] = queue.right.shift();
-        else if(queue.up.length > 0)    [currentX, currentY] = queue.up.shift();
-        else if(queue.down.length > 0)  [currentX, currentY] = queue.down.shift();
+        // Current points
+        [currentX, currentY] = queue.shift();
 
-        // Check if arrived to goal
-        if(currentX === goalX && currentY === goalY) {
-
-            paths.push(directions);
-            directions = [];
-            
-        }
+        // Current distance
+        let currentDistance = distance[currentX][currentY];
 
         // Visited point 
         visited[currentX][currentY] = true;
 
+        // Defining neighbors
+        let neighbors = [];
+
+        // Moving left
+        for(let y = currentY - 1; y > -1 && matrix[currentX][y] !== 'X' && !visited[currentX][y]; y --){
+            neighbors.push([currentX, y]);
+        }
+
+        // Moving right
+        for(let y = currentY + 1; y < cols && matrix[currentX][y] !== 'X' && !visited[currentX][y]; y ++){
+            neighbors.push([currentX, y]);
+        }
+
         // Moving up
-        if(currentX - 1 > -1  && matrix[currentX - 1][currentY] !== 'X' && !visited[currentX - 1][currentY]){
-            queue.left.push([currentX - 1, currentY]);
-            directions.push('up');
+        for(let x = currentX - 1; x > -1 && matrix[x][currentY] !== 'X' && !visited[x][currentY]; x --){
+            neighbors.push([x, currentY]);
         }
 
         // Moving down
-        if(currentX + 1 < cols   && matrix[currentX + 1][currentY] !== 'X' && !visited[currentX + 1][currentY]){
-            queue.right.push([currentX + 1, currentY]);
-            directions.push('down');
+        for(let x = currentX + 1; x < rows && matrix[x][currentY] !== 'X' && !visited[x][currentY]; x ++){
+            neighbors.push([x, currentY]);
         }
 
-        // Moving left
-        if(currentY - 1 > -1  && matrix[currentX][currentY - 1] !== 'X' && !visited[currentX][currentY - 1]){
-            queue.up.push([currentX, currentY - 1]);
-            directions.push('left');
-        }
+        // Checking neighbors with shortest distance
+        neighbors.forEach( ([x, y]) => {
+            
+            if(distance[x][y] > currentDistance + 1){
+                distance[x][y] = currentDistance + 1;
+                queue.push([x, y]);
+            }
 
-        // Moving bottom
-        if(currentY + 1 < rows   && matrix[currentX][currentY + 1] !== 'X' && !visited[currentX][currentY + 1]){
-            queue.down.push([currentX, currentY + 1]);
-            directions.push('right');
-        }
+        });
 
     }
 
-    // Getting number of moves for each path until achieve the goal
-    let moves = paths.map(array => array.reduce( (acc, elem, index) => array[index] !== array[index + 1] ? acc = acc + 1 : acc, 0));
-
-    // Returning minimum number of moves
-    return Math.min(...moves);
+    return distance[goalX][goalY];
 
 }
