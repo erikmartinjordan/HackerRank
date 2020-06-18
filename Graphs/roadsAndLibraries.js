@@ -1,4 +1,3 @@
-// Complete the roadsAndLibraries function below.
 function roadsAndLibraries(n, c_lib, c_road, cities) {
 
     // Defining total cost
@@ -12,8 +11,8 @@ function roadsAndLibraries(n, c_lib, c_road, cities) {
     }
     else{
 
-        // Defining land as an object of cities
-        let land = {};
+        // Defining land as an array of cities
+        let land = [];
 
         // Defining city
         let city = (number, connections) => ({number: number, connections: connections});
@@ -21,7 +20,7 @@ function roadsAndLibraries(n, c_lib, c_road, cities) {
         // Pushing cities to land
         for(let i = 0; i < n; i ++){
 
-           land[i] = city(i, []);
+           land.push(city(i, []));
 
         }
 
@@ -53,9 +52,6 @@ function roadsAndLibraries(n, c_lib, c_road, cities) {
 
             }
 
-            // Deleting city
-            delete land[start];
-
             // Returning object of cities
             return visited;
                 
@@ -64,20 +60,22 @@ function roadsAndLibraries(n, c_lib, c_road, cities) {
         // visited: count explored cities and array of visited cities
         // nextCity: next city to visit
         let visited  = {counter: 0, cities: Array(n).fill(false)};
-        let nextCity = Object.keys(land)[0];
 
         // While there are cities to explore
-        while(nextCity){
+        for(let nextCity = 0; nextCity < visited.cities.length; nextCity ++){
+
+            if(visited.cities[nextCity] === false){
             
-            // Getting an array of visited cities
-            visited = exploreNearCities(nextCity, visited);
+                // Getting an array of visited cities
+                visited = exploreNearCities(nextCity, visited);
 
-            // We have a library for every group of cities and roads = cities - 1          
-            totalCost += c_lib + (visited.counter - 1) * c_road;
+                // We have a library for every group of cities and roads = cities - 1          
+                totalCost += c_lib + (visited.counter - 1) * c_road;
 
-            // Resetting variables
-            nextCity = Object.keys(land)[0];
-            visited.counter = 0;
+                // Resetting counter
+                visited.counter = 0;
+
+            }
 
         }
 
