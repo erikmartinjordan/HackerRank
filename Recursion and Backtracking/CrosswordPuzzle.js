@@ -1,53 +1,109 @@
 function crosswordPuzzle(crossword, hints) {
-
-    // Array of words
-    let words = hints.split(';');
-
-    // The tricky point of the problem is that you need to realize that 
-    // there is only one way to write the words.
-    // Every time we place a word wrong, we need to begin again to iterate 
+    
+    // Array of words
+    let words = hints.split(';');
+    
+    // Every time we place a word wrong, function restarts
     const shuffleWords = () => {
-
+        
         // Creating a copy of the crossword
         let copy = [...crossword];
-
-        // Create a copy of the original array to be randomized
+        
+        // Creating a copy of the original array to be randomized
         let shuffle = [...words];
-
+        
         // Defining function returning random value from i to N
         const getRandomValue = (i, N) => Math.floor(Math.random() * (N - i) + i);
-
-        // Shuffle a pair of two elements at random position j
+        
+        // Declaring function to see if word fits
+        const wordFits = (string1, string2) => [...string1].reduce( (acc, elem, i) => acc = acc && (string1[i] === '-' || string1[i] === string2[i]), true);
+        
+        // Shuffling a pair of two elements at random position j
         shuffle.forEach( (elem, i, arr, j = getRandomValue(i, arr.length)) => [arr[i], arr[j]] = [arr[j], arr[i]] );
-
+        
         // Reading words one by one
         while(shuffle.length > 0){
-
+            
             // Getting first word
             let word = shuffle.shift();
-
+            
+            // Word in dashes
+            let wordInDashes = '-'.repeat(word.length);
+            
+            // Determine if the word was written
+            let written = false;
+            
             // Iterating the crossword horizontally
             for(let i = 0; i < 10; i ++){
-                for(let j = 0; j < 10; j ++){
-                    // Trying to write the word horizontally
-                    if(copy[i][j] === '-' && word.length > 0) 
-                        [copy[i][j], word] = [word[0], word.substr(1)];
-                    // The word is shorter than the space to place it
-                    if(copy[i][j] === '-' && word.length === 0)
-                        shuffleWords();
-                }
-                // The word is longer than the space to place it
-                if(word.length > 0) 
-                    shuffleWords();
-                else
+                
+                // Getting the dashes of the line
+                let lineDashes = copy[i].split('+').join('');
+                
+                // Comparing if the word fits in the dashes
+                if(lineDashes.length === wordInDashes.length && lineDashes.includes('-') && wordFits(lineDashes, word)){
+                    
+                    // Replacing the line
+                    copy[i] = copy[i].replace(lineDashes, word);
+                    
+                    // Word is written
+                    written = true;
+                    
+                    // Going out of the loop
                     break;
+                    
+                }
+                
             }
-
+            
+            // If the word is not written horizontally, let's try it vertically
+            if(!written){
+                
+                // Transpose the crossword
+                let trans = copy.map((string, i) => [...string].reduce( (acc, elem, j) => acc += copy[j][i], ''));
+                
+                // Iterating the crossword horizontally
+                for(let i = 0; i < 10; i ++){
+                    
+                    // Getting the dashes of the line
+                    let lineDashes = trans[i].split('+').join('');
+                    
+                    // Comparing if the word fits in the dashes
+                    if(lineDashes.length === wordInDashes.length && lineDashes.includes('-') && wordFits(lineDashes, word)){
+                        
+                        // Replacing the line
+                        trans[i] = trans[i].replace(lineDashes, word);
+                        
+                        // Word is written
+                        written = true;
+                        
+                        // Transpose again
+                        copy = trans.map((string, i) => [...string].reduce( (acc, elem, j) => acc += trans[j][i], ''));
+                        
+                        // Going out of the loop
+                        break;
+                        
+                    }
+                    
+                }
+                
+            }
+            
+            console.log(copy);
+            
+            // If still not written, shuffle words
+            if(!written)
+                shuffleWords();
+            
         }
-               
+        
+        return copy;
+       
     }
-
+    
     // Starting the function
-    shuffleWords();
-
+    let res = shuffleWords();
+    
+    // Returning result
+    return res;
+    
 }
