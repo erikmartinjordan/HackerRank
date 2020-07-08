@@ -3,9 +3,12 @@ function maxCircle(queries) {
     // Defining array of results
     let res = [];
 
-    // Defining connections and sizes
-    let connections = {};
-    let sizes = {};
+    // Defining circles and sizes
+    let circles = {};
+    let sizes   = {};
+
+    // Declaring parent
+    let dad;
 
     // Iterating through queries
     for(let i = 0; i < queries.length; i ++){
@@ -14,56 +17,67 @@ function maxCircle(queries) {
         let friends = [queries[i][0], queries[i][1]];
 
         // Creating new connection in case they both doesn't exist
-        if(!connections[friends[0]] && !connections[friends[1]]){
+        if(!circles[friends[0]] && !circles[friends[1]]){
+            
+            // Assigning dad
+            dad = friends[0];
+            
+            // Assigning new dad to friends
+            circles[friends[0]] = circles[friends[1]] = dad;
 
-            connections[friends[0]] = friends[0];
-            connections[friends[1]] = friends[0];
+            // Size of this new group is equal to 2
+            sizes[dad] = 2;
 
-            sizes[friends[0]] = 2;
+        }
+        else if(circles[friends[0]] && !circles[friends[1]]){
+
+            // Assigning dad
+            dad = circles[friends[0]];
+
+            // Assigning new value
+            circles[friends[1]] = dad;
+
+            // Size of this new group increases one
+            sizes[dad] ++;
+
+        }
+        else if(!circles[friends[0]] && circles[friends[1]]){
+
+            // Assigning dad
+            dad = circles[friends[1]];
+
+            // Assigning new value
+            circles[friends[0]] = dad;
+
+            // Size of this new group increases one
+            sizes[dad] ++;
 
         }
         else{
 
-            // Merge two groups condition
-            let mergeTwoGroups = connections[friends[0]] && connections[friends[1]] ? true : false;
+            // Assigning dad depending on size 
+            dad = circles[friends[0]];
 
-            // Setting values
-            connections[friends[0]] = connections[friends[0]] ? connections[friends[0]] : connections[friends[1]];
-            connections[friends[1]] = connections[friends[1]] ? connections[friends[1]] : connections[friends[0]];
+            // Setting counter of friends to zero
+            // Adding value to find and replace
+            let count = 0;
+            let find  = circles[friends[1]];
 
-            // Find and replace values
-            let find    = connections[friends[0]] ? connections[friends[1]] : connections[friends[0]];
-            let replace = connections[friends[0]] ? connections[friends[0]] : connections[friends[1]];
+            // Iterating through object to merge
+            Object.keys(circles).forEach(key => {
 
-            // Merging two groups
-            if(mergeTwoGroups){
+                if(circles[key] === find) circles[key] = dad; 
+                if(circles[key] === dad)  count ++;
 
-                let counter = 0;
+            });
 
-                Object.keys(connections).forEach(key => {
-
-                    if(connections[key] === find)    connections[key] = replace; 
-                    if(connections[key] === replace) counter ++;
-
-                });
-
-                sizes[replace] = counter;
-
-            }
-            else{
-
-                sizes[replace] ++;
-
-            }
+            // Updating counter
+            sizes[dad] = count;
 
         }
 
-        // Updating max
-        let largestGroup = Math.max(...Object.values(sizes));
-
-        // Pushing result
-        res.push(largestGroup);
-
+        // Pushing value to res
+        res.length === 0 || sizes[dad] > res[res.length - 1] ? res.push(sizes[dad]) : res.push(res[res.length - 1]);
 
     }
 
