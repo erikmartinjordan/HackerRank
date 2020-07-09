@@ -7,8 +7,9 @@ function maxCircle(queries) {
     let circles = {};
     let sizes   = {};
 
-    // Declaring parent
+    // Declaring variables
     let dad;
+    let find;
 
     // Iterating through queries
     for(let i = 0; i < queries.length; i ++){
@@ -22,7 +23,7 @@ function maxCircle(queries) {
             // Assigning dad
             dad = friends[0];
             
-            // Assigning new dad to friends
+            // Assigning new dad to both friends
             circles[friends[0]] = circles[friends[1]] = dad;
 
             // Size of this new group is equal to 2
@@ -53,31 +54,27 @@ function maxCircle(queries) {
             sizes[dad] ++;
 
         }
-        else{
+        else if(circles[friends[0]] !== circles[friends[1]]){
 
-            // Assigning dad depending on size 
-            dad = circles[friends[0]];
+            // Assigning dad depending on size of the group
+            // The greater the group we choose, the less replacements we'll need to do later
+            dad  = sizes[circles[friends[0]]] > sizes[circles[friends[1]]] ? circles[friends[0]] : circles[friends[1]];
 
-            // Setting counter of friends to zero
             // Adding value to find and replace
-            let count = 0;
-            let find  = circles[friends[1]];
+            // It's the opposite from dad's value
+            find = sizes[circles[friends[0]]] > sizes[circles[friends[1]]] ? circles[friends[1]] : circles[friends[0]];
 
-            // Iterating through object to merge
-            Object.keys(circles).forEach(key => {
+            // New group size will be the sum of the oldest and the replacements
+            sizes[dad] += sizes[find];
 
-                if(circles[key] === find) circles[key] = dad; 
-                if(circles[key] === dad)  count ++;
+            // Iterating to replace dad
+            Object.keys(circles).forEach(key => circles[key] === find ? circles[key] = dad : null);
 
-            });
-
-            // Updating counter
-            sizes[dad] = count;
 
         }
 
         // Pushing value to res
-        res.length === 0 || sizes[dad] > res[res.length - 1] ? res.push(sizes[dad]) : res.push(res[res.length - 1]);
+        res.push(Math.max(sizes[dad], res[res.length - 1] || 0));
 
     }
 
