@@ -1,65 +1,75 @@
 function maxCircle(queries) {
 
-    // Defining array of results
-    let res = [];
+    // Defining variables
+    let root = {};
+    let size = {};
+    let res  = [];
+    let newSize;
+    
+    // Defining mergeGroups function
+    const mergeGroups = (r0, r1) => {
+    
+        // Changing the root of one of the groups
+        root[r1] = r0;
 
-    // Defining circles and sizes
-    let roots = {};
-    let sizes = {};
+        // Size of the group increases
+        size[r0] += size[r1];
 
-    // Defining root function
-    const findRoot = (elem) => {
-
-        if(roots[elem]){
-            
-            // We find the root
-            while(roots[elem] !== elem){
-                elem = roots[elem];
-            }
-
-        }
-        else{
-
-            // If there is no root we assign 
-            roots[elem] = elem; 
-            sizes[elem] = 1;
-
-        }
-
-        return elem;
-       
+        // Size of the old root group becomes zero
+        size[r1] = 0;
+        
+        // Returning size of the new group
+        return size[r0];
+    
     }
-
+    
+    // Defining getRoot function
+    const getRoot = (friend) => {
+    
+        // If friend has root, find it iterating through root
+        if(root[friend]){
+            
+            // Roots satisfy root[friend] === friend
+            while(root[friend] !== friend){
+                
+                friend = root[friend];
+                
+            }
+        
+        }
+        // Otherwise, create new group with friend as root
+        else{
+            
+            root[friend] = friend;
+            size[friend] = 1;
+            
+        }
+        
+        return root[friend];
+    
+    }
+    
     // Iterating through queries
     for(let i = 0; i < queries.length; i ++){
-
-        // Getting two friends
+        
+        // Reading friends for each query
         let friends = [queries[i][0], queries[i][1]];
-
-        // Finding roots
-        let root = [findRoot(friends[0]), findRoot(friends[1])];
-
-        // If roots are different, we need to union them
-        if(root[0] !== root[1]){
-
-            // Union two roots
-            roots[root[1]] = roots[root[0]];
-
-            // Increasing sizes properly
-            sizes[root[0]] += sizes[root[1]]; 
-
-            // Resetting sizes of root 1
-            sizes[root[1]] = 0;
-
+        
+        // Getting roots of both friends
+        let r = [getRoot(friends[0]), getRoot(friends[1])];
+        
+        // If roots are different, we need to merge both groups
+        if(r[0] !== r[1]){
+        
+            newSize = mergeGroups(r[0], r[1]);
+        
         }
-
-        // Pushing result
-        if(res.length === 0) res.push(2);
-        else                 res.push(Math.max(res[res.length - 1], sizes[root[0]]))
-
+        
+        // Pushing max group size
+        res.push(Math.max(newSize, res.length > 0 ? res[res.length - 1] : 2));
+        
     }
-
-    // Returning result
+    
     return res;
-
+    
 }
