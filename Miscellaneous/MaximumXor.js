@@ -1,74 +1,82 @@
 function maxXor(arr, queries) {
-
-    // Declaring result as an array of integers
-    let res = [];
     
-    // Creating the trie
-    let trie = {};
+    // Defining empty tree
+    let tree = {};
     
-    // Declaring empty strings  
-    let num = '';
+    // Defining empty branch
+    let branch = '';
     
-    // Iterating through array
     for(let i = 0; i < arr.length; i ++){
         
-        // Defining empty 32-bits array
-        let empty = Array(32).fill(0).map(elem => elem).join('');
+        // Getting decimal
+        let decimal = arr[i];
         
-        // Transforming number to binary
-        let binary = (empty + arr[i].toString(2)).slice(-32);
+        // Defining a 32-bits empty string
+        let empty = ('0').repeat(32);
         
-        // Iterating through binary number
+        // Transforming decimal into 32-bits binary
+        let binary = (empty + decimal.toString(2)).slice(-32);
+        
+        // Iterating through 32-bits binary
         for(let j = 0; j < binary.length; j ++){
             
-            // Adding binary number to string
-            num += binary[j];
-                
-            // Defining empty trie
-            trie[num] = {};
+            // Adding one bit to current branch
+            branch += binary[j];
             
-            // Creating childs 
-            if(num !== binary){
+            // Defining branch as empty object
+            tree[branch] = {};
+            
+            // Adding 0 and 1 to left and right branches
+            if(branch !== binary){
                 
-                if(binary[j + 1] === '0') trie[num].left  = num + 0;
-                if(binary[j + 1] === '1') trie[num].right = num + 1;
+                if(binary[j + 1] === '0') tree[branch].left  = branch + '0';
+                if(binary[j + 1] === '1') tree[branch].right = branch + '1'; 
                 
-            }
+            }    
             
         }
         
-        num = '';
+        // Resseting branch
+        branch = '';
         
     }
     
-    // Getting the max xor in queries and finding it in arr
+    // Defining closest value
+    let closest = '';
+    
+    // Defining array of max XOR's
+    let res = [];
+    
     for(let i = 0; i < queries.length; i ++){
         
-        // Defining empty 32-bits array
-        let empty = Array(32).fill(0).map(elem => elem).join('');
+        // Getting decimal
+        let decimal = queries[i];
         
-        // Transforming number to binary
-        let binary = (empty + queries[i].toString(2)).slice(-32);
+        // Defining a 32-bits empty string
+        let empty = ('0').repeat(32);
         
-        // Iterating through binary number
+        // Transforming decimal into 32-bits binary
+        let binary = (empty + decimal.toString(2)).slice(-32);
+        
         for(let j = 0; j < binary.length; j ++){
             
+            // Getting current bit and inverting it
             let current = binary[j];
             let inverse = binary[j] === '1' ? '0' : '1';
             
-            if(trie[num + inverse]) num += inverse;
-            else                    num += current;
-            
+            // Update closest value depending on the tree
+            if(tree[closest + inverse]) closest += inverse;
+            else                        closest += current;
         }
         
-        // Getting maxXor between binary and num
-        let max = parseInt(binary, 2) ^ parseInt(num, 2);
-        
-        // Pushing result
+        // Defining max
+        let max = parseInt(binary, 2) ^ parseInt(closest, 2);
+
+        // Adding to result
         res.push(max);
         
-        // Resetting variable
-        num = '';
+        // Resetting closest value
+        closest = '';
         
     }
     
