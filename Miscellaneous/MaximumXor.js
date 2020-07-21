@@ -25,7 +25,7 @@ function maxXor(arr, queries) {
             num += binary[j];
                 
             // Defining empty trie
-            if(!trie[num]) trie[num] = {};
+            trie[num] = {};
             
             // Creating childs 
             if(num !== binary){
