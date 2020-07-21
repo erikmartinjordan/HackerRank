@@ -36,7 +36,7 @@ function maxXor(arr, queries) {
             
         }
         
-        // Resseting branch
+        // Resetting branch
         branch = '';
         
     }
